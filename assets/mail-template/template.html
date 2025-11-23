@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        .dot {
+            height: 85px;
+            width: 85px;
+            background-color: blue;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 47%;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+
+<body>
+    <span class="dot"></span>
+    <p style="text-align:center;">Thank you.your order has been received.</p>
+    <div style="margin-left:22%;margin-top:20px;">
+        <table style="width:70%;text-align:center;">
+            <tr>
+                <th>Order Number</th>
+                <th>Order Date</th>
+                <th>Order Expire Date</th>
+            </tr>
+            <tr>
+                <td>#{{order_id}}</td>
+                <td>{{order_date}}</td>
+                <td>{{order_expiration_date}}</td>
+            </tr>
+        </table>
+    </div>
+
+
+    <h4 style="text-align:center;margin-top:40px;">Order Details</h4>
+    <div style="margin-left:22%;">
+        <table style="width:70%;text-align:center;">
+            <tr>
+                <th>Course(s) include</th>
+                <th>Plan Name</th>
+                <th>Plan Price</th>
+            </tr>
+            <tr>
+                <td>
+                    {{courses_name}}
+                </td>
+                <td>{{plan_name}}</td>
+                <td>Rs {{plan_price}}</td>
+            </tr>
+        </table>
+    </div>
+
+
+
+    <h4 style="text-align:center;margin-top:40px;">Payment Details</h4>
+    <div style="margin-left:22%;">
+        <table style="width:70%;text-align:center;">
+            <tr>
+                <th>Payment ID</th>
+                <th>Payment Method</th>
+                <th>Payment Date</th>
+            </tr>
+            <tr>
+                <td>{{payment_id}}</td>
+                <td>Razorpay</td>
+                <td>{{payment_date}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <h4 style="text-align:center;">This is system generated email.kindly not to reply to this email.if any enquiry
+        kindly contact with us at 10908762</h4>
+
+    <h4 style="text-align:center;">
+        Thanks & Regards,<br>
+        Mr Arun kumar Basak<br>
+        (On behalf of Nextlms)
+    </h4>
+
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+<h2>Thank you, {{customerName}}!</h2>
+<p>Your order <strong>{{orderId}}</strong> has been placed on <strong>{{orderDate}}</strong>.</p>
+
+<h3>Shipping Address:</h3>
+<p>{{address}}</p>
+
+<h3>Order Details:</h3>
+<table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse: collapse; text-align: left;">
+    <thead style="background-color: #f2f2f2;">
+        <tr>
+            <th>#</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price (₹)</th>
+            <th>Total (₹)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{{productTable}}}
+    </tbody>
+</table>
+
+<br />
+
+<p><strong>Subtotal:</strong> ₹{{totalBeforeDiscount}}</p>
+<p><strong>Tax:</strong> ₹{{tax}}</p>
+<p><strong>Shipping:</strong> ₹{{shippingCharge}}</p>
+<p><strong>Discount:</strong> ₹{{discount}}</p>
+<p><strong>Total:</strong> <strong>₹{{totalAfterDiscount}}</strong></p>
+
+<br />
+
+<p><strong>Payment Method:</strong> {{paymentMethod}}</p>
+<p><strong>Payment Status:</strong> {{paymentStatus}}</p>
+<p><strong>Order Status:</strong> {{orderStatus}}</p>
+
+<p style="margin-top: 30px;">If you have any questions, feel free to contact our support team.</p>
+<p>Best regards,<br />Your Company Team</p>

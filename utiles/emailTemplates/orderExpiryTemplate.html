@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Order Expiring Soon</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff4c4c, #ff6b6b);
+            color: #ffffff;
+            text-align: center;
+            padding: 25px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+            color: #333333;
+        }
+
+        .content p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 20px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            background: #ff4c4c;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            background: #e63939;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 13px;
+            color: #777777;
+            border-top: 1px solid #eeeeee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>⏳ Order Expiring Soon!</h1>
+        </div>
+        <div class="content">
+            <p><strong>Dear {{name}},</strong></p>
+            <p>Your order is expiring on <strong>{{expiryDate}}</strong>.</p>
+            <p>Renew now to continue enjoying our services without interruption.</p>
+            <a href="{{renewalLink}}" class="btn">Renew Now</a>
+            <p>If you need any help, feel free to reach out to our support team.</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 Sigma IT Solutions | All rights reserved.</p>
+        </div>
+    </div>
+
+</body>
+
+</html>
