@@ -10,6 +10,7 @@ const userSchema = new Schema({
         required: true,
         trim: true
     },
+
     email: {
         type: String,
         required: true,
@@ -21,6 +22,8 @@ const userSchema = new Schema({
         required: true,
         match: [/^\d{10}$/, 'Please enter a valid 10-digit mobile number']
     },
+    otp: { type: String },
+    otpExpires: { type: Date },
 
     password: {
         type: String,
@@ -39,8 +42,8 @@ const userSchema = new Schema({
     dob: {
         type: Date
     },
-   
-   
+
+
     address: {
         type: String,
         default: ''
@@ -69,7 +72,7 @@ const userSchema = new Schema({
         type: String,
         default: ''
     },
-   
+
     extra_phone_numbers: {
         type: String,
         default: ''
@@ -82,8 +85,8 @@ const userSchema = new Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
-  
-   
+
+
 }, { timestamps: true });
 
 export default model('User', userSchema);

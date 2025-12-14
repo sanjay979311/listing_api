@@ -53,6 +53,8 @@ import mailRoutes from './routes/sendMailRoute.js';
 import authRoutes from './routes/authRoute.js';
 import userRoutes from './routes/users.js';
 import categoryRoutes from './routes/categoryRoute.js';
+import blukPostRoutes from './routes/bulkPostRoute.js';
+import postRoutes from './routes/postRoute.js'
 import courseRoutes from './routes/courseRoute.js';
 import subCategoryRoutes from './routes/subCategoryRoute.js';
 import countryRoutes from './routes/countryRoutes.js';
@@ -70,6 +72,8 @@ import dashboardRoute from './routes/dashboardRoute.js';
 // Route setup
 app.use('/api/send-mail', mailRoutes);
 app.use('/api', categoryRoutes);
+app.use('/api', blukPostRoutes);
+app.use('/api', postRoutes);
 app.use('/api', courseRoutes);
 
 app.use('/api/sub-category', subCategoryRoutes);

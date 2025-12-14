@@ -5,10 +5,160 @@ import { createToken } from '../utiles/tokenCreate.js'
 import Category from '../models/categoryModel.js';
 import City from '../models/cityModel.js'
 import bcrypt from 'bcryptjs';
+import  axios  from 'axios';
+
+// https://waba.cheapsmsbazaar.com/api/create-message
+// {
+//     "appkey": "f82c3cf2-8b8b-4e29-bcd3-5061a9c5a8f9",
+//     "authkey": "fedMh2VoVGdhC70aHXNBH0yE6Iwd6VhWalp4fF2zlU9DQNmNo5",
+//     "to": "8981313005",
+//      "template_id": "429467170239842",
+//      "language":"en_us",
+//     "variables": {
+//         "{{1}}": "123456"
+       
+//     }
+// }
 
 
 
+export const sendOtp = async (req, res) => {
+    try {
+        const { mobileNo } = req.body;
 
+        if (!mobileNo) {
+            return res.status(400).json({
+                success: false,
+                message: "Mobile number is required"
+            });
+        }
+
+        // Find user
+        const user = await User.findOne({ mobileNo });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found with this mobile number"
+            });
+        }
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+       
+
+        // Save OTP + expiry in DB
+        user.otp = otp;
+        user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+        await user.save();
+
+        // WhatsApp API details
+        const token = "EAAUZAW89HZBioBO2ueSnNxsHEVQOs2IgEhXvJkZCvHgolXiR7w0zNLL5GePCEcQhyeCkcZCch7KlhCP3ryKX9Y19ts4vOvZAtkI4f0lHVeIlnWGklfWZBTje7ZBehuyGnljZAeEGSYSAYoXxNmRBe5kyQicIdQnvraniedIM3RypBpE9GwfSZAB3ujGrWLP4FsfUfqscIWM8ukrUtx884H33E9LG8FRj7OfqYibW8rKHX64NLxyoQDBmY0sl4G63L";
+        const phone_number_id ="337442439463653";
+
+        // Send WhatsApp message
+        await axios.post(
+            `https://graph.facebook.com/v19.0/${phone_number_id}/messages`,
+            {
+                messaging_product: "whatsapp",
+                to: "91" + mobileNo,  // FORMAT CORRECT
+                type: "text",
+                text: {
+                    body: `Your login OTP is *${otp}*. It is valid for 5 minutes.`
+                }
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+         console.log("WhatsApp message sent successfully to:",  + user.mobileNo);
+          console.log("otp =============>",otp)
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP sent via WhatsApp successfully"
+        });
+
+    } catch (error) {
+        console.error("Send OTP Error:", error.response?.data || error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to send OTP",
+            error: error.message
+        });
+    }
+};
+
+
+export const loginWithOtp = async (req, res) => {
+    try {
+        const { mobileNo, otp } = req.body;
+
+        if (!mobileNo || !otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Mobile number and OTP are required"
+            });
+        }
+
+        // Match user
+        const user = await User.findOne({ mobileNo });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        // Check OTP match
+        if (user.otp !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid OTP"
+            });
+        }
+
+        // Check OTP expiry
+        if (Date.now() > user.otpExpires) {
+            return res.status(400).json({
+                success: false,
+                message: "OTP expired"
+            });
+        }
+
+        // Clear OTP after success
+        user.otp = null;
+        user.otpExpires = null;
+        await user.save();
+
+        // If you already use JWT, generate token here
+        // Example (modify according to your project)
+        const token = user._id.toString();
+
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            token,
+            user
+        });
+
+    } catch (error) {
+        console.log("OTP Login Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "OTP verification failed",
+            error: error.message
+        });
+    }
+};
+
+
+// complete otp base login
 
 export const getDockterList = async (req, res) => {
 

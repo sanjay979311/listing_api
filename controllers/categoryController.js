@@ -7,9 +7,27 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client } from "@aws-sdk/client-s3";
+
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// =======================
+//  AWS S3 CLIENT
+// =======================
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+
 
 
 export const categoryList = async (req, res) => {
@@ -40,41 +58,77 @@ export const getCategoryById = async (req, res) => {
 
 
 export const createCategory = async (req, res) => {
-    try {
-        const { name } = req.body;
-        const image = req.file?.filename;
+  try {
+    const { name } = req.body;
+    const image = req.file?.location; // S3 image URL here
+    console.log("image =======>",image)
+     console.log("name =======>",name)
+     
 
-        // Validate input
-        if (!name || !image) {
-            return res.status(400).json({ error: 'Name and image are required' });
-        }
-
-        // Generate slug
-        const slug = slugify(name, { lower: true });
-
-        // Check if category already exists
-        const existingCategory = await Category.findOne({ name });
-        if (existingCategory) {
-            return res.status(400).json({ error: 'Category already exists' });
-        }
-
-        // Create new category
-        const newCategory = await Category.create({
-            name,
-            image,
-            slug,
-        });
-
-        res.status(201).json({
-            message: 'Category created successfully',
-            category: newCategory,
-        });
-
-    } catch (err) {
-        console.error('Error creating category:', err);
-        res.status(500).json({ error: 'Failed to create category' });
+    if (!name || !image) {
+      return res.status(400).json({ error: "Name and image are required" });
     }
+
+    const slug = slugify(name, { lower: true });
+
+    const existingCategory = await Category.findOne({ name });
+    if (existingCategory) {
+      return res.status(400).json({ error: "Category already exists" });
+    }
+
+    const newCategory = await Category.create({
+      name,
+      image, // store S3 URL
+      slug,
+    });
+
+    res.status(201).json({
+      message: "Category created successfully",
+      category: newCategory,
+    });
+  } catch (err) {
+    console.error("Error creating category:", err);
+    res.status(500).json({ error: "Failed to create category" });
+  }
 };
+
+
+// export const createCategory = async (req, res) => {
+//     try {
+//         const { name } = req.body;
+//         const image = req.file?.filename;
+
+//         // Validate input
+//         if (!name || !image) {
+//             return res.status(400).json({ error: 'Name and image are required' });
+//         }
+
+//         // Generate slug
+//         const slug = slugify(name, { lower: true });
+
+//         // Check if category already exists
+//         const existingCategory = await Category.findOne({ name });
+//         if (existingCategory) {
+//             return res.status(400).json({ error: 'Category already exists' });
+//         }
+
+//         // Create new category
+//         const newCategory = await Category.create({
+//             name,
+//             image,
+//             slug,
+//         });
+
+//         res.status(201).json({
+//             message: 'Category created successfully',
+//             category: newCategory,
+//         });
+
+//     } catch (err) {
+//         console.error('Error creating category:', err);
+//         res.status(500).json({ error: 'Failed to create category' });
+//     }
+// };
 
 
 export const updateCategory = async (req, res) => {
@@ -143,45 +197,11 @@ export const updateCategory = async (req, res) => {
 };
 
 // Delete a category
-export const deleteCategory = async (req, res) => {
-
-    try {
-        const { id } = req.params; // Get the category ID from the URL
-
-
-        // Find the category by ID
-        const category = await Category.findById(id);
-        if (!category) {
-            return res.status(404).json({ error: 'Category not found' });
-        }
-
-        const imagePath = path.join('uploads', category.image);
-        // Delete the associated image file
-        // if (category.image) {
-        //     fs.unlinkSync(category.image); // Delete the image file
-        // }
-
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath); // Delete the image file
-        }
-
-        // Delete the category from the database
-        await Category.findByIdAndDelete(id);
-
-        res.status(200).json({
-            message: 'Category deleted successfully',
-        });
-
-    } catch (err) {
-        console.error('Error deleting category:', err);
-        res.status(500).json({ error: 'Failed to delete category' });
-    }
-};
-
 // export const deleteCategory = async (req, res) => {
-//     console.log("Category id is ======>", req.params)
+
 //     try {
 //         const { id } = req.params; // Get the category ID from the URL
+
 
 //         // Find the category by ID
 //         const category = await Category.findById(id);
@@ -189,10 +209,12 @@ export const deleteCategory = async (req, res) => {
 //             return res.status(404).json({ error: 'Category not found' });
 //         }
 
-//         // Define the full image path
 //         const imagePath = path.join('uploads', category.image);
+//         // Delete the associated image file
+//         // if (category.image) {
+//         //     fs.unlinkSync(category.image); // Delete the image file
+//         // }
 
-//         // Check if the file exists before deleting
 //         if (fs.existsSync(imagePath)) {
 //             fs.unlinkSync(imagePath); // Delete the image file
 //         }
@@ -209,3 +231,36 @@ export const deleteCategory = async (req, res) => {
 //         res.status(500).json({ error: 'Failed to delete category' });
 //     }
 // };
+
+// ==============================
+// 5. DELETE CATEGORY (DELETE S3)
+// ==============================
+export const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const category = await Category.findById(id);
+    if (!category)
+      return res.status(404).json({ error: "Category not found" });
+
+    // DELETE IMAGE FROM S3
+    if (category.image) {
+      const key = category.image.split(".amazonaws.com/")[1];
+
+      await s3.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET,
+          Key: key,
+        })
+      );
+    }
+
+    // DELETE CATEGORY FROM DB
+    await Category.findByIdAndDelete(id);
+
+    return res.status(200).json({ message: "Category deleted successfully" });
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return res.status(500).json({ error: "Failed to delete category" });
+  }
+};

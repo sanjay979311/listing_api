@@ -2,6 +2,7 @@
 
 import express from 'express';
 import {
+    locationList,
     createArea,
     getAllArea,
     getCitiesByCountry,
@@ -21,6 +22,7 @@ router.post('/create', authMiddleware, roleMiddleware(['admin']), createArea);
 
 // ✅ Admin & Customers can view all cities
 router.get('/', getAllArea);
+router.get('/location-list', locationList);
 
 // ✅ Admin & Customers can get cities by state ID
 router.get('/get-area-by-country/:id', getCitiesByCountry);

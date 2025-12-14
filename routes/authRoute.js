@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, logout, changePassword, updateStudentPassword, deleteStudent, updateStudent } from '../controllers/authControllers.js'
+import { register, login, logout, changePassword, updateStudentPassword, deleteStudent, updateStudent,sendOtp, loginWithOtp } from '../controllers/authControllers.js'
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 import { roleMiddleware } from '../middlewares/roleMiddleware.js';
 
@@ -14,6 +14,8 @@ router.get("/", (req, res) => {
 
 // POST /api/create
 router.post("/register", register);
+router.post('/send-otp', sendOtp);
+router.post('/login-otp', loginWithOtp);
 
 router.post("/login", login);
 // router.post("/change-password", authMiddleware, roleMiddleware(['admin']), changePassword);

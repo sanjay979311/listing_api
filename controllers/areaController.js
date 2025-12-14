@@ -1,7 +1,40 @@
-import Area from '../models/AreaModel.js';
+import Area from '../models/areaModel.js';
 import State from '../models/stateModel.js';
 import City from '../models/cityModel.js';
 
+
+
+
+export const locationList = async (req, res) => {
+  try {
+    const areas = await Area.find()
+      .populate('state country city', 'name')
+      .sort({ createdAt: -1 });
+
+    // Create a set to store unique suggestions
+    const suggestionsSet = new Set();
+
+    areas.forEach((a) => {
+      const cityName = a.city?.name?.trim();
+      const areaName = a.name?.trim();
+
+      // Add city name alone
+      if (cityName) suggestionsSet.add(cityName);
+
+      // Add area + city combination
+      if (areaName && cityName) {
+        suggestionsSet.add(`${areaName}, ${cityName}`);
+      }
+    });
+
+    const suggestions = Array.from(suggestionsSet);
+
+    res.json(suggestions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
 
 
 export const createArea = async (req, res) => {
